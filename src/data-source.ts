@@ -7,6 +7,10 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 import { DataSource } from 'typeorm';
+import { Usuario } from './entities/Usuario';
+import { Atividade } from './entities/Atividade';
+import { Incentivo } from './entities/Incentivo';
+import { Conexao } from './entities/Conexao';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -17,5 +21,5 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   logging: false,
   dropSchema: process.env.NODE_ENV === 'test',
-  entities: [],
+  entities: [Usuario, Atividade, Incentivo, Conexao],
 });
