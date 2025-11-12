@@ -1,16 +1,16 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class Conexao {
+export class Connection {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column()
-  usuario1!: string;
+  user1!: string;
 
   @Column()
-  usuario2!: string;
+  user2!: string;
 
   @Column({ type: 'timestamp' })
-  dataCriacao!: Date;
+  creationDate!: Date;
 }

@@ -7,10 +7,10 @@ if (process.env.NODE_ENV === 'test') {
 }
 
 import { DataSource } from 'typeorm';
-import { Usuario } from './entities/Usuario';
-import { Atividade } from './entities/Atividade';
-import { Incentivo } from './entities/Incentivo';
-import { Conexao } from './entities/Conexao';
+import { User } from './entities/User';
+import { Activity } from './entities/Activity';
+import { Connection } from './entities/Connection';
+import { Incentive } from './entities/Incentive';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
@@ -21,5 +21,5 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   logging: false,
   dropSchema: process.env.NODE_ENV === 'test',
-  entities: [Usuario, Atividade, Incentivo, Conexao],
+  entities: [User, Activity, Connection, Incentive],
 });
