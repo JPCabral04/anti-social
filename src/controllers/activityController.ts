@@ -34,7 +34,15 @@ export const createActivity = async (
   next: NextFunction,
 ) => {
   try {
-    const activity = await activityService.createActivity(req.body);
+    const authorId = req.user.id;
+    const { title, description } = req.body;
+
+    const activity = await activityService.createActivity({
+      title,
+      description,
+      authorId,
+    });
+
     res.status(status.CREATED).json(activity);
   } catch (err) {
     next(err);
@@ -47,6 +55,12 @@ export const updateActivity = async (
   next: NextFunction,
 ) => {
   try {
+    const existing = await activityService.getActivityById(req.params.id);
+
+    if (existing.author.id !== req.user.id) {
+      return res.status(403).json({ message: 'Ação não permitida' });
+    }
+
     const activity = await activityService.updateActivity(
       req.params.id,
       req.body,
@@ -63,6 +77,12 @@ export const deleteActivity = async (
   next: NextFunction,
 ) => {
   try {
+    const existing = await activityService.getActivityById(req.params.id);
+
+    if (existing.author.id !== req.user.id) {
+      return res.status(403).json({ message: 'Ação não permitida' });
+    }
+
     await activityService.deleteActivity(req.params.id);
     res.status(status.ACCEPTED).json({ message: 'Atividade deletada' });
   } catch (err) {

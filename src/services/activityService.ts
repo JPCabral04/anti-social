@@ -1,14 +1,19 @@
 import { AppDataSource } from '../data-source';
 import { Activity } from '../entities/Activity';
+import {
+  CreateActivityDto,
+  UpdateActivityDto,
+} from '../schemas/activitySchema';
+import { User } from '../entities/User';
 
 const activityRepo = AppDataSource.getRepository(Activity);
+const userRepo = AppDataSource.getRepository(User);
 
 export const getAllActivities = async () => {
   const activities = await activityRepo.find({
     relations: ['author', 'incentives'],
+    order: { creationDate: 'DESC' },
   });
-  if (activities.length === 0)
-    throw { status: 404, message: 'Nenhuma atividade encontrada' };
   return activities;
 };
 
@@ -21,18 +26,22 @@ export const getActivityById = async (id: string) => {
   return activity;
 };
 
-export const createActivity = async (data: any) => {
+export const createActivity = async (
+  data: CreateActivityDto & { authorId: string },
+) => {
+  const author = await userRepo.findOneBy({ id: data.authorId });
+  if (!author) throw { status: 404, message: 'Usuário autor não encontrado' };
+
   const newActivity = activityRepo.create({
     title: data.title,
     description: data.description,
     authorId: data.authorId,
-    creationDate: new Date(),
-    editDate: new Date(),
   });
+
   return activityRepo.save(newActivity);
 };
 
-export const updateActivity = async (id: string, data: any) => {
+export const updateActivity = async (id: string, data: UpdateActivityDto) => {
   const activity = await activityRepo.findOneBy({ id });
   if (!activity) throw { status: 404, message: 'Atividade não encontrada' };
 

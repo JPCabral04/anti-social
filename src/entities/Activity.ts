@@ -20,14 +20,15 @@ export class Activity {
   @Column({ type: 'text' })
   description!: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   creationDate!: Date;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   editDate!: Date;
 
   @ManyToOne(() => User, (user) => user.activities, {
     onDelete: 'CASCADE',
+    nullable: false,
   })
   @JoinColumn({ name: 'authorId' })
   author!: User;
@@ -37,7 +38,6 @@ export class Activity {
 
   @OneToMany(() => Incentive, (incentive) => incentive.activity, {
     cascade: true,
-    nullable: true,
   })
   incentives?: Incentive[];
 }
