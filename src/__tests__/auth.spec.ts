@@ -74,13 +74,13 @@ describe('Authentication Test', () => {
       password: 'xxxxxx',
     });
 
-    it('Não deve logar com email inexistente (401)', async () => {
-      const res = await request(app).post('/auth/login').send({
-        email: 'naoexiste@example.com',
-        password: '123456',
-      });
+    expect(res.status).toBe(401);
+  });
 
-      expect(res.status).toBe(401);
+  it('Não deve logar com email inexistente (401)', async () => {
+    const res = await request(app).post('/auth/login').send({
+      email: 'naoexiste@example.com',
+      password: '123456',
     });
 
     expect(res.status).toBe(401);

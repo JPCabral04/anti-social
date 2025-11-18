@@ -6,11 +6,11 @@ import {
 } from '../schemas/activitySchema';
 import { User } from '../entities/User';
 
-const activityRepo = AppDataSource.getRepository(Activity);
-const userRepo = AppDataSource.getRepository(User);
+const getActivityRepo = () => AppDataSource.getRepository(Activity);
+const getUserRepo = () => AppDataSource.getRepository(User);
 
 export const getAllActivities = async () => {
-  const activities = await activityRepo.find({
+  const activities = await getActivityRepo().find({
     relations: ['author', 'incentives'],
     order: { creationDate: 'DESC' },
   });
@@ -18,7 +18,7 @@ export const getAllActivities = async () => {
 };
 
 export const getActivityById = async (id: string) => {
-  const activity = await activityRepo.findOne({
+  const activity = await getActivityRepo().findOne({
     where: { id },
     relations: ['author', 'incentives', 'incentives.author'],
   });
@@ -29,19 +29,20 @@ export const getActivityById = async (id: string) => {
 export const createActivity = async (
   data: CreateActivityDto & { authorId: string },
 ) => {
-  const author = await userRepo.findOneBy({ id: data.authorId });
+  const author = await getUserRepo().findOneBy({ id: data.authorId });
   if (!author) throw { status: 404, message: 'Usuário autor não encontrado' };
 
-  const newActivity = activityRepo.create({
+  const newActivity = getActivityRepo().create({
     title: data.title,
     description: data.description,
     authorId: data.authorId,
   });
 
-  return activityRepo.save(newActivity);
+  return getActivityRepo().save(newActivity);
 };
 
 export const updateActivity = async (id: string, data: UpdateActivityDto) => {
+  const activityRepo = getActivityRepo();
   const activity = await activityRepo.findOneBy({ id });
   if (!activity) throw { status: 404, message: 'Atividade não encontrada' };
 
@@ -53,11 +54,11 @@ export const updateActivity = async (id: string, data: UpdateActivityDto) => {
 };
 
 export const deleteActivity = async (id: string) => {
-  const result = await activityRepo.delete(id);
+  const result = await getActivityRepo().delete(id);
   if (result.affected === 0)
     throw { status: 404, message: 'Atividade não encontrada' };
 };
 
 export const clearActivities = async () => {
-  await activityRepo.createQueryBuilder().delete().from(Activity).execute();
+  await getActivityRepo().createQueryBuilder().delete().from(User).execute();
 };
