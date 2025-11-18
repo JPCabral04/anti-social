@@ -19,7 +19,12 @@ export const createUser = async (
 };
 
 export const signUser = async (email: string, password: string) => {
-  const user = await userRepo.findOne({ where: { email } });
+  const user = await userRepo
+    .createQueryBuilder('user')
+    .addSelect('user.password')
+    .where('user.email = :email', { email })
+    .getOne();
+
   if (!user || !(await bcrypt.compare(password, user.password))) {
     throw { status: 401, message: 'Credenciais inválidas' };
   }

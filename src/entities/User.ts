@@ -13,27 +13,25 @@ export class User {
   @Column({ unique: true })
   email!: string;
 
-  @Column()
+  @Column({ select: false })
   password!: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ nullable: true })
+  bio?: string;
+
+  @Column({ nullable: true })
+  developmentGoals?: string;
+
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   registrationDate!: Date;
-
-  @Column()
-  bio!: string;
-
-  @Column()
-  developmentGoals!: string;
 
   @OneToMany(() => Activity, (activity) => activity.author, {
     cascade: true,
-    nullable: true,
   })
   activities?: Activity[];
 
   @OneToMany(() => Incentive, (incentive) => incentive.author, {
     cascade: true,
-    nullable: true,
   })
   incentives?: Incentive[];
 }
