@@ -23,7 +23,15 @@ export const createIncentive = async (
   next: NextFunction,
 ) => {
   try {
-    const incentive = await incentiveService.createIncentive(req.body);
+    const authorId = req.user.id;
+    const { type, activityId } = req.body;
+
+    const incentive = await incentiveService.createIncentive({
+      type,
+      activityId,
+      authorId,
+    });
+
     res.status(status.CREATED).json(incentive);
   } catch (err) {
     next(err);

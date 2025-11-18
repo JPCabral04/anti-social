@@ -28,11 +28,12 @@ export class Incentive {
   })
   type!: IncentiveType;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   creationDate!: Date;
 
   @ManyToOne(() => User, (user) => user.incentives, {
     onDelete: 'CASCADE',
+    nullable: false,
   })
   @JoinColumn({ name: 'authorId' })
   author!: User;
@@ -42,6 +43,7 @@ export class Incentive {
 
   @ManyToOne(() => Activity, (activity) => activity.incentives, {
     onDelete: 'CASCADE',
+    nullable: false,
   })
   @JoinColumn({ name: 'activityId' })
   activity!: Activity;
