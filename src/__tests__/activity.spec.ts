@@ -328,4 +328,28 @@ describe('Activity Integration Tests', () => {
       expect(res.status).toBe(404);
     });
   });
+
+  describe('Criar atividade com autor inexistente', () => {
+    it('Deve retornar 404 se autor não existir (404)', async () => {
+      // Cria token com ID fake
+      const jwt = require('jsonwebtoken');
+      const fakeUserId = '123e4567-e89b-12d3-a456-426614174000';
+      const fakeToken = jwt.sign(
+        { id: fakeUserId, name: 'Fake', email: 'fake@test.com' },
+        process.env.JWT_SECRET!,
+        { expiresIn: '1h' },
+      );
+
+      const res = await request(app)
+        .post('/activities')
+        .set('Authorization', `Bearer ${fakeToken}`)
+        .send({
+          title: 'Atividade com autor fake',
+          description: 'Descrição da atividade com autor inexistente.',
+        });
+
+      expect(res.status).toBe(404);
+      expect(res.body.message).toBe('Usuário autor não encontrado');
+    });
+  });
 });

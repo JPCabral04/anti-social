@@ -117,4 +117,46 @@ describe('User Integration Tests', () => {
 
     expect(res.status).toBe(404);
   });
+
+  describe('Atualizar email duplicado', () => {
+    it('Não deve atualizar para email já em uso (400)', async () => {
+      // Cria segundo usuário
+      await request(app).post('/auth/register').send({
+        name: 'Outro User',
+        email: 'outro@example.com',
+        password: '123456',
+      });
+
+      // Tenta atualizar user1 para usar email do user2
+      const res = await request(app)
+        .put(`/users/${userId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          email: 'outro@example.com',
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe('Email já está em uso');
+    });
+  });
+
+  describe('Deletar usuário inexistente', () => {
+    it('Deve retornar 404 ao tentar deletar usuário que não existe (404)', async () => {
+      const fakeId = '123e4567-e89b-12d3-a456-426614174000';
+
+      // Precisamos criar um token válido com esse ID fake
+      const jwt = require('jsonwebtoken');
+      const fakeToken = jwt.sign(
+        { id: fakeId, name: 'Fake', email: 'fake@test.com' },
+        process.env.JWT_SECRET!,
+        { expiresIn: '1h' },
+      );
+
+      const res = await request(app)
+        .delete(`/users/${fakeId}`)
+        .set('Authorization', `Bearer ${fakeToken}`);
+
+      expect(res.status).toBe(404);
+    });
+  });
 });

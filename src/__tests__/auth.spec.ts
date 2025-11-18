@@ -85,4 +85,37 @@ describe('Authentication Test', () => {
 
     expect(res.status).toBe(401);
   });
+
+  describe('Token inválido', () => {
+    it('Não deve aceitar token malformado (401)', async () => {
+      await request(app).post('/auth/register').send({
+        name: 'John Doe',
+        email: 'john@example.com',
+        password: '123456',
+      });
+
+      const res = await request(app)
+        .get('/users/fake-id')
+        .set('Authorization', 'Bearer token-invalido-malformado');
+
+      expect(res.status).toBe(401);
+      expect(res.body.message).toBe('Token inválido');
+    });
+
+    it('Não deve aceitar token expirado (401)', async () => {
+      const jwt = require('jsonwebtoken');
+      const expiredToken = jwt.sign(
+        { id: 'fake-id' },
+        process.env.JWT_SECRET!,
+        { expiresIn: '-1h' }, // Token expirado
+      );
+
+      const res = await request(app)
+        .get('/users/fake-id')
+        .set('Authorization', `Bearer ${expiredToken}`);
+
+      expect(res.status).toBe(401);
+      expect(res.body.message).toBe('Token inválido');
+    });
+  });
 });

@@ -337,5 +337,19 @@ describe('Connection Integration Tests', () => {
 
       expect(res.status).toBe(401);
     });
+
+    it('Deve retornar 404 ao deletar conexão já deletada', async () => {
+      // Deleta uma vez
+      await request(app)
+        .delete(`/connections/${connectionId}`)
+        .set('Authorization', `Bearer ${token1}`);
+
+      // Tenta deletar novamente
+      const res = await request(app)
+        .delete(`/connections/${connectionId}`)
+        .set('Authorization', `Bearer ${token1}`);
+
+      expect(res.status).toBe(404);
+    });
   });
 });

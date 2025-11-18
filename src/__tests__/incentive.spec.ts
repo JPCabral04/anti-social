@@ -54,7 +54,7 @@ describe('Incentive Integration Tests', () => {
     await clearUsers();
   });
 
-  // 1) CREATE INCENTIVE
+  // CREATE INCENTIVE
   describe('POST /incentives', () => {
     it('Deve criar um incentivo tipo GEM (201)', async () => {
       const res = await request(app)
@@ -285,9 +285,31 @@ describe('Incentive Integration Tests', () => {
 
       expect(res.status).toBe(201);
     });
+
+    it('Deve retornar 404 se usuário autor não existir (404)', async () => {
+      // Cria token com ID fake
+      const jwt = require('jsonwebtoken');
+      const fakeUserId = '123e4567-e89b-12d3-a456-426614174000';
+      const fakeToken = jwt.sign(
+        { id: fakeUserId, name: 'Fake', email: 'fake@test.com' },
+        process.env.JWT_SECRET!,
+        { expiresIn: '1h' },
+      );
+
+      const res = await request(app)
+        .post('/incentives')
+        .set('Authorization', `Bearer ${fakeToken}`)
+        .send({
+          type: IncentiveType.GEM,
+          activityId: activityId,
+        });
+
+      expect(res.status).toBe(404);
+      expect(res.body.message).toBe('Usuário autor não encontrado');
+    });
   });
 
-  // 2) GET INCENTIVES BY ACTIVITY
+  //  GET INCENTIVES BY ACTIVITY
   describe('GET /incentives/activity/:activityId', () => {
     it('Deve retornar lista vazia se não houver incentivos (200)', async () => {
       const res = await request(app)
