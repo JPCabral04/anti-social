@@ -36,5 +36,5 @@ export const deleteUser = async (id: string) => {
 };
 
 export const clearUsers = async () => {
-  await getUserRepo().clear();
+  await getUserRepo().createQueryBuilder().delete().from(User).execute();
 };
