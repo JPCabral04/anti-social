@@ -1,15 +1,16 @@
 import { AppDataSource } from '../data-source';
 import { User } from '../entities/User';
 
-const userRepo = AppDataSource.getRepository(User);
+const getUserRepo = () => AppDataSource.getRepository(User);
 
 export const getUserById = async (id: string) => {
-  const user = await userRepo.findOneBy({ id });
+  const user = await getUserRepo().findOneBy({ id });
   if (!user) throw { status: 404, message: 'Usuário não encontrado' };
   return user;
 };
 
 export const updateUser = async (id: string, data: any) => {
+  const userRepo = getUserRepo();
   const user = await userRepo.findOneBy({ id });
   if (!user) throw { status: 404, message: 'Usuário não encontrado' };
 
@@ -29,11 +30,11 @@ export const updateUser = async (id: string, data: any) => {
 };
 
 export const deleteUser = async (id: string) => {
-  const result = await userRepo.delete(id);
+  const result = await getUserRepo().delete(id);
   if (result.affected === 0)
     throw { status: 404, message: 'Usuário não encontrado' };
 };
 
 export const clearUsers = async () => {
-  await userRepo.createQueryBuilder().delete().from(User).execute();
+  await getUserRepo().clear();
 };
