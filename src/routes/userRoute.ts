@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   deleteUser,
   getUserById,
+  getAllUsers,
   updateUser,
 } from '../controllers/userController';
 import { authenticate } from '../middlewares/authMiddleware';
@@ -12,6 +13,7 @@ const userRoute = Router();
 
 userRoute.use(authenticate);
 
+userRoute.get('/', getAllUsers);
 userRoute.get('/:id', getUserById);
 userRoute.put('/:id', validateZod(updateUserSchema), updateUser);
 userRoute.delete('/:id', deleteUser);

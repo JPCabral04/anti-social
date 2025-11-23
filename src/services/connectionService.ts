@@ -1,45 +1,52 @@
 import { AppDataSource } from '../data-source';
 import { Connection } from '../entities/Connection';
+import { User } from '../entities/User';
 import { CreateConnectionDto } from '../schemas/connectionSchema';
 
 const getConnectionRepo = () => AppDataSource.getRepository(Connection);
+const getUserRepo = () => AppDataSource.getRepository(User);
+
+export const createConnection = async (data: CreateConnectionDto) => {
+  const user1 = await getUserRepo().findOneBy({ id: data.user1 });
+  const user2 = await getUserRepo().findOneBy({ id: data.user2 });
+
+  if (!user1 || !user2) {
+    throw { status: 404, message: 'Usuário não encontrado' };
+  }
+
+  const existing = await getConnectionRepo().findOne({
+    where: {
+      user1: { id: data.user1 },
+      user2: { id: data.user2 },
+    },
+  });
+
+  if (existing) {
+    return existing;
+  }
+
+  const connection = getConnectionRepo().create({
+    user1,
+    user2,
+  });
+
+  return getConnectionRepo().save(connection);
+};
 
 export const getConnectionsByUser = async (userId: string) => {
-  const connections = await getConnectionRepo()
-    .createQueryBuilder('connection')
-    .leftJoinAndSelect('connection.user1', 'user1')
-    .leftJoinAndSelect('connection.user2', 'user2')
-    .where('user1.id = :userId', { userId })
-    .orWhere('user2.id = :userId', { userId })
-    .getMany();
-
+  const connections = await getConnectionRepo().find({
+    where: { user1: { id: userId } },
+    relations: ['user2'],
+  });
   return connections;
 };
 
-export const createConnection = async (data: CreateConnectionDto) => {
-  const connectionRepo = getConnectionRepo();
-
-  const existing = await connectionRepo
-    .createQueryBuilder('c')
-    .leftJoinAndSelect('c.user1', 'user1')
-    .leftJoinAndSelect('c.user2', 'user2')
-    .where(
-      '(user1.id = :u1 AND user2.id = :u2) OR (user1.id = :u2 AND user2.id = :u1)',
-      {
-        u1: data.user1,
-        u2: data.user2,
-      },
-    )
-    .getOne();
-
-  if (existing) throw { status: 409, message: 'Conexão já existe' };
-
-  const connection = connectionRepo.create({
-    user1: { id: data.user1 } as any,
-    user2: { id: data.user2 } as any,
+export const getFollowers = async (userId: string) => {
+  const followers = await getConnectionRepo().find({
+    where: { user2: { id: userId } },
+    relations: ['user1'],
   });
-
-  return connectionRepo.save(connection);
+  return followers;
 };
 
 export const deleteConnection = async (id: string) => {
