@@ -38,3 +38,11 @@ export const deleteUser = async (id: string) => {
 export const clearUsers = async () => {
   await getUserRepo().createQueryBuilder().delete().from(User).execute();
 };
+
+export const getAllUsers = async () => {
+  const users = await getUserRepo().find({
+    select: ['id', 'name', 'email', 'bio'],
+    order: { name: 'ASC' },
+  });
+  return users;
+};

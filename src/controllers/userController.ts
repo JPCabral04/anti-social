@@ -51,3 +51,16 @@ export const deleteUser = async (
     next(err);
   }
 };
+
+export const getAllUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const users = await userService.getAllUsers();
+    res.status(status.OK).json(users);
+  } catch (err) {
+    next(err);
+  }
+};

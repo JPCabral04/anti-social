@@ -11,8 +11,9 @@ const getUserRepo = () => AppDataSource.getRepository(User);
 
 export const getAllActivities = async () => {
   const activities = await getActivityRepo().find({
-    relations: ['author', 'incentives'],
+    relations: ['author', 'incentives', 'incentives.author', 'comments'],
     order: { creationDate: 'DESC' },
+    take: 10,
   });
   return activities;
 };
@@ -35,6 +36,7 @@ export const createActivity = async (
   const newActivity = getActivityRepo().create({
     title: data.title,
     description: data.description,
+    mediaUrl: data.mediaUrl,
     authorId: data.authorId,
   });
 
@@ -48,6 +50,7 @@ export const updateActivity = async (id: string, data: UpdateActivityDto) => {
 
   activity.title = data.title ?? activity.title;
   activity.description = data.description ?? activity.description;
+  activity.mediaUrl = data.mediaUrl ?? activity.mediaUrl;
   activity.editDate = new Date();
 
   return activityRepo.save(activity);
@@ -60,5 +63,9 @@ export const deleteActivity = async (id: string) => {
 };
 
 export const clearActivities = async () => {
-  await getActivityRepo().createQueryBuilder().delete().from(User).execute();
+  await getActivityRepo()
+    .createQueryBuilder()
+    .delete()
+    .from(Activity)
+    .execute();
 };

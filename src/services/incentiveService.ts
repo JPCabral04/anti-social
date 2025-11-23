@@ -10,7 +10,7 @@ const getUserRepo = () => AppDataSource.getRepository(User);
 
 export const getIncentivesByActivity = async (activityId: string) => {
   const incentives = await getIncentiveRepo().find({
-    where: { activityId },
+    where: { activity: { id: activityId } }, // Sintaxe segura para relação
     relations: ['author'],
     order: { creationDate: 'DESC' },
   });
@@ -28,27 +28,24 @@ export const createIncentive = async (
 
   const existing = await getIncentiveRepo().findOne({
     where: {
-      authorId: data.authorId,
-      activityId: data.activityId,
-      type: data.type,
+      author: { id: data.authorId },
+      activity: { id: data.activityId },
     },
   });
 
-  if (existing) throw { status: 409, message: 'Incentivo já concedido' };
+  if (existing) {
+    return existing;
+  }
 
   const newIncentive = getIncentiveRepo().create({
     type: data.type,
-    authorId: data.authorId,
-    activityId: data.activityId,
+    author: author,
+    activity: activity,
   });
 
   return getIncentiveRepo().save(newIncentive);
 };
 
 export const clearIncentives = async () => {
-  await getIncentiveRepo()
-    .createQueryBuilder()
-    .delete()
-    .from(Incentive)
-    .execute();
+  await getIncentiveRepo().clear();
 };

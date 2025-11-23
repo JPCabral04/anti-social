@@ -8,16 +8,19 @@ import userRoute from './routes/userRoute';
 import activityRoute from './routes/activityRoute';
 import connectionRoute from './routes/connectionRoute';
 import incentiveRoute from './routes/incetiveRoute';
+import commentRoute from './routes/commentRoute';
 
 export const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
 app.use('/auth', authRoute);
 app.use('/users', userRoute);
 app.use('/activities', activityRoute);
 app.use('/incentives', incentiveRoute);
 app.use('/connections', connectionRoute);
+app.use('/comments', commentRoute);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

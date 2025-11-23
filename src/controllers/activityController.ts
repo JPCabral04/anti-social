@@ -35,11 +35,12 @@ export const createActivity = async (
 ) => {
   try {
     const authorId = req.user.id;
-    const { title, description } = req.body;
+    const { title, description, mediaUrl } = req.body;
 
     const activity = await activityService.createActivity({
       title,
       description,
+      mediaUrl,
       authorId,
     });
 

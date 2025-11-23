@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from './User';
 import { Incentive } from './Incentive';
+import { Comment } from './Comment';
 
 @Entity()
 export class Activity {
@@ -19,6 +20,9 @@ export class Activity {
 
   @Column({ type: 'text' })
   description!: string;
+
+  @Column({ type: 'text', nullable: true })
+  mediaUrl?: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   creationDate!: Date;
@@ -32,6 +36,9 @@ export class Activity {
   })
   @JoinColumn({ name: 'authorId' })
   author!: User;
+
+  @OneToMany(() => Comment, (comment) => comment.activity)
+  comments?: Comment[];
 
   @Column()
   authorId!: string;
