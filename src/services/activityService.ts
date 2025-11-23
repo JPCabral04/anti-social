@@ -13,6 +13,7 @@ export const getAllActivities = async () => {
   const activities = await getActivityRepo().find({
     relations: ['author', 'incentives', 'incentives.author', 'comments'],
     order: { creationDate: 'DESC' },
+    take: 10,
   });
   return activities;
 };
