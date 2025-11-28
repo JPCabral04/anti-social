@@ -2,6 +2,8 @@ import status from 'http-status';
 import { NextFunction, Request, Response } from 'express';
 import * as commentService from '../services/commentService';
 
+import redis from '../lib/redis';
+
 export const createComment = async (
   req: Request,
   res: Response,
@@ -10,11 +12,19 @@ export const createComment = async (
   try {
     const authorId = req.user.id;
     const { activityId, content } = req.body;
+
     const comment = await commentService.createComment({
       activityId,
       content,
       authorId,
     });
+
+    try {
+      await redis.del('feed_activities');
+    } catch (e) {
+      console.error('Erro ao limpar cache redis', e);
+    }
+
     res.status(status.CREATED).json(comment);
   } catch (err) {
     next(err);

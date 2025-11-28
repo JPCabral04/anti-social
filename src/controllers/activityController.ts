@@ -94,13 +94,17 @@ export const deleteActivity = async (
   next: NextFunction,
 ) => {
   try {
-    const existing = await activityService.getActivityById(req.params.id);
+    const activityId = req.params.id;
+    const existing = await activityService.getActivityById(activityId);
 
     if (existing.author.id !== req.user.id) {
       return res.status(403).json({ message: 'Ação não permitida' });
     }
 
-    await activityService.deleteActivity(req.params.id);
+    await activityService.deleteActivity(activityId);
+
+    await redis.del('feed_activities');
+
     res.status(status.ACCEPTED).json({ message: 'Atividade deletada' });
   } catch (err) {
     next(err);
