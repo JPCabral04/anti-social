@@ -25,9 +25,6 @@ export const AppDataSource = new DataSource({
   logging: false,
   dropSchema: process.env.NODE_ENV === 'test',
   entities: [User, Activity, Incentive, Connection, Comment],
-<<<<<<< HEAD
-=======
   migrations: [],
   subscribers: [],
->>>>>>> master
 });
