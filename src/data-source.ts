@@ -15,12 +15,19 @@ import { Comment } from './entities/Comment';
 
 export const AppDataSource = new DataSource({
   type: 'postgres',
-  url:
-    process.env.NODE_ENV === 'test'
-      ? process.env.DATABASE_URL_TEST
-      : process.env.DATABASE_URL,
+  host: process.env.POSTGRES_HOST || 'localhost',
+  port: Number(process.env.POSTGRES_PORT) || 5432,
+  username: process.env.POSTGRES_USER || 'postgres',
+  password: process.env.POSTGRES_PASSWORD || '123456',
+  database: process.env.POSTGRES_DB_NAME || 'anti_social_db',
+
   synchronize: true,
   logging: false,
   dropSchema: process.env.NODE_ENV === 'test',
   entities: [User, Activity, Incentive, Connection, Comment],
+<<<<<<< HEAD
+=======
+  migrations: [],
+  subscribers: [],
+>>>>>>> master
 });

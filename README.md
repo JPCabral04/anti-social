@@ -13,8 +13,19 @@ O projeto foi construído utilizando as seguintes tecnologias e bibliotecas:
 - **[PostgreSQL](https://www.postgresql.org/)** - Banco de dados relacional robusto.
 - **[Zod](https://zod.dev/)** - Validação de esquemas TypeScript-first.
 - **[Jest](https://jestjs.io/)** - Framework de testes.
-- **[Docker](https://www.docker.com/)** - Containerização do banco de dados.
+- **[Docker](https://www.docker.com/)** - Containerização da aplicação e banco de dados.
+- **[Redis](https://redis.io/)** - Armazenamento de dados em memória.
+- **[Nginx](https://nginx.org/)** - Servidor web e Load Balancer.
 - **[pnpm](https://pnpm.io/)** - Gerenciador de pacotes rápido e eficiente.
+
+## 🏗️ Arquitetura
+
+O projeto utiliza uma arquitetura distribuída e containerizada com Docker Compose:
+
+- **Load Balancer (Nginx):** Recebe as requisições na porta `8081` e distribui entre as instâncias da API.
+- **API (Node.js):** Executa em múltiplas réplicas (escalável) para processar as requisições.
+- **Banco de Dados (PostgreSQL):** Armazena os dados persistentes.
+- **Cache (Redis):** Utilizado para cache e gerenciamento de sessões.
 
 ## 📋 Pré-requisitos
 
@@ -71,30 +82,40 @@ Para rodar os testes, o sistema busca automaticamente por um arquivo `.env.test.
 **Atenção:** É fundamental que o **banco de dados de teste exista** antes da execução dos testes.
 Caso o container Docker não o crie automaticamente ou você esteja usando um banco local, **crie o banco de dados manualmente** (ex: `anti_social_test_db`) utilizando o pgAdmin, DBeaver ou via linha de comando (`CREATE DATABASE ...`). Sem isso, os testes não conseguirão conectar e falharão.
 
-## 🐳 Banco de Dados (Docker)
+## 🐳 Executando com Docker Compose
 
-O projeto utiliza o Docker Compose para subir instâncias do PostgreSQL (uma para desenvolvimento e outra para testes).
+O projeto utiliza o Docker Compose para subir todo o ambiente (Banco de Dados, Redis, API e Load Balancer).
 
-Para iniciar os bancos de dados:
+Para iniciar a aplicação com 3 réplicas da API e Load Balancer:
 
 ```bash
-docker-compose up -d
+docker-compose up --build --scale api=3
 ```
 
 Isso iniciará:
 
+- **Load Balancer (Nginx)**: Acessível em `http://localhost:8081`.
+- **API**: 3 instâncias rodando internamente.
 - **anti_social**: Banco principal na porta `5434`.
 - **postgres_test**: Banco de testes na porta `5433`.
+- **redis**: Serviço de cache na porta `6379`.
 
-## ▶️ Executando a Aplicação
+## ▶️ Executando Localmente (Desenvolvimento)
 
 ### Desenvolvimento
 
-Para rodar a aplicação em modo de desenvolvimento (com hot-reload):
+Para rodar a aplicação localmente em modo de desenvolvimento (sem Docker para a API, apenas para os serviços):
 
-```bash
-pnpm dev
-```
+1. Suba os serviços de infraestrutura:
+
+   ```bash
+   docker-compose up -d anti_social postgres_test redis
+   ```
+
+2. Inicie a aplicação:
+   ```bash
+   pnpm dev
+   ```
 
 ### Produção
 

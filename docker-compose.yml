@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   anti_social:
     image: postgres:latest
@@ -11,6 +13,8 @@ services:
     volumes:
       - ./data/social:/var/lib/postgresql
     restart: unless-stopped
+    networks:
+      - app-network
 
   postgres_test:
     image: postgres:latest
@@ -24,3 +28,48 @@ services:
     volumes:
       - ./data/test:/var/lib/postgresql
     restart: unless-stopped
+    networks:
+      - app-network
+
+  redis:
+    image: redis:alpine
+    container_name: anti_social_redis
+    ports:
+      - '6379:6379'
+    networks:
+      - app-network
+
+  api:
+    build: .
+    deploy:
+      replicas: 3
+    environment:
+      - PORT=3000
+      - POSTGRES_HOST=anti_social
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB_NAME=${POSTGRES_DB_NAME}
+      - REDIS_HOST=redis
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - anti_social
+      - redis
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:latest
+    container_name: load_balancer
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - '8080:80'
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -15,6 +15,12 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
+app.get('/health', (req, res) => {
+  const host = process.env.HOSTNAME || 'Localhost';
+  console.log(`[Backend ${host}] Recebeu Health Check! `);
+  res.send(`Estou vivo! Respondendo do container: ${host}`);
+});
+
 app.use('/auth', authRoute);
 app.use('/users', userRoute);
 app.use('/activities', activityRoute);
